@@ -1,6 +1,12 @@
 'use strict'
 
 const db = require('../database')
+const bcrypt = require("bcryptjs")
+
+function hashPassword(password) {
+    const salt = bcrypt.genSaltSync(10)
+    return bcrypt.hashSync(password, salt)
+}
 
 module.exports = {
     getAll: (req, res) => {
@@ -23,37 +29,49 @@ module.exports = {
         })
     },
     add: (req, res) => {
-        let petugas = {
-            username: req.body.username,
-            password: req.body.password,
-            nama_petugas: req.body.nama_petugas,
-            level: req.body.level
-            // if(level === "petugas" || level === "admin") {
-                
-            // }
+        let {
+            username,
+            password,
+            nama_petugas,
+            level,
+        } = req.body
+        if (!username, !password, !nama_petugas || !level) {
+            res.status(402).json({
+                message: "Nama Petugas, Username, Level dan Password Harus Diisi!"
+            })
         }
-        db.query(`insert into petugas set ?`, petugas, (err, results) => {
+        return db.query(`insert into petugas set ?`, {
+            username,
+            password: hashPassword(password),
+            nama_petugas,
+            level,
+        }, (err, results) => {
             if (null, err) throw (err)
             res.json({
                 message: "Berhasil Menambahkan Data",
-                data: petugas
+                data: results
             })
             console.log("Berhasil menambahkan data", results)
         })
     },
     update: (req, res) => {
         const id = req.params.id
-        let petugas = {
-            username: req.body.username,
-            password: req.body.password,
-            nama_petugas: req.body.nama_petugas,
-            level: req.body.level
-        }
-        db.query(`update petugas set ? where id_petugas = '${id}'`, petugas, (err, results) => {
+        let {
+            username,
+            password,
+            nama_petugas,
+            level
+        } = req.body
+        db.query(`update petugas set ? where id_petugas = '${id}'`, {
+            username,
+            password: hashPassword(password),
+            nama_petugas,
+            level,
+        }, (err, results) => {
             if (null, err) throw (err)
             res.json({
                 message: "Berhasil Update Data",
-                data: petugas
+                data: results
             })
             console.log("Berhasil update data", results)
         })
@@ -67,5 +85,5 @@ module.exports = {
                 data: results
             })
         })
-    }
+    },
 }

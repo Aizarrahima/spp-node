@@ -27,6 +27,7 @@ app.use("/petugas", require('./routes/petugas.route'))
 app.use("/spp", require('./routes/spp.route'))
 app.use("/siswa", require('./routes/siswa.route'))
 app.use("/pembayaran", require('./routes/pembayaran.route'))
+app.use("/auth", require('./auth/login.route'))
 
 const port = 8000
 app.listen(port, () => console.log(`App running ${port}`))

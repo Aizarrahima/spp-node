@@ -1,6 +1,12 @@
 'use strict'
 
 const db = require('../database')
+const bcrypt = require("bcryptjs")
+
+function hashPassword(password) {
+    const salt = bcrypt.genSaltSync(10)
+    return bcrypt.hashSync(password, salt)
+}
 
 module.exports = {
     getAll: (req, res) => {
@@ -23,47 +29,77 @@ module.exports = {
         })
     },
     add: (req, res) => {
-        let siswa = {
-            nisn: req.body.nisn,
-            nis: req.body.nis,
-            nama: req.body.nama,
-            id_kelas: req.body.id_kelas,
-            alamat: req.body.alamat,
-            no_tlp: req.body.no_tlp,
-            username: req.body.username,
-            password: req.body.password,
-            level: req.body.level
+        let {
+            nisn,
+            nis,
+            nama,
+            id_kelas,
+            alamat,
+            no_tlp,
+            username,
+            password,
+            level
+        } = req.body
+        if (!nisn, !nis, !nama, !id_kelas, !alamat, !no_tlp, !username, !password || !level) {
+            res.status(402).json({
+                message: "Data tidak boleh kosong!"
+            })
         }
-        db.query(`insert into siswa set ?`, siswa, (err, results) => {
+        return db.query(`insert into siswa set ?`, {
+            nisn,
+            nis,
+            nama,
+            id_kelas,
+            alamat,
+            no_tlp,
+            username,
+            password: hashPassword(password),
+            level
+        }, (err, results) => {
             if (null, err) throw (err)
             res.json({
                 message: "Berhasil Menambahkan Data",
-                data: siswa
+                data: results
             })
-            console.log("Berhasil menambahkan data ", results)
+            console.log("Berhasil menambahkan data", results)
         })
     },
     update: (req, res) => {
-        let nisn = req.params.nisn
-        let siswa = {
-            nis: req.body.nis,
-            nama: req.body.nama,
-            id_kelas: req.body.id_kelas,
-            alamat: req.body.alamat,
-            no_tlp: req.body.no_tlp,
-            username: req.body.username,
-            password: req.body.password,
-            level: req.body.level
+        const nisn = req.params.nisn
+        let {
+            nis,
+            nama,
+            id_kelas,
+            alamat,
+            no_tlp,
+            username,
+            password,
+            level
+        } = req.body
+        if (!nis, !nama, !id_kelas, !alamat, !no_tlp, !username, !password || !level) {
+            res.status(402).json({
+                message: "Data tidak boleh kosong!"
+            })
         }
-        db.query(`update siswa set ? where nisn = '${nisn}'`, siswa, (err, results) => {
+        return db.query(`update siswa set ? where nisn = '${nisn}'`, {
+            nis,
+            nama,
+            id_kelas,
+            alamat,
+            no_tlp,
+            username,
+            password: hashPassword(password),
+            level
+        }, (err, results) => {
             if (null, err) throw (err)
             res.json({
                 message: "Berhasil Update Data",
-                data: siswa
+                data: results
             })
-            console.log("Berhasil update data ", results)
+            console.log("Berhasil update data", results)
         })
     },
+
     delete: (req, res) => {
         const nisn = req.params.nisn
         db.query(`delete from siswa where nisn = '${nisn}'`, (err, results) => {
